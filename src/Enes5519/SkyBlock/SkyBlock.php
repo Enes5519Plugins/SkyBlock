@@ -11,9 +11,12 @@ use pocketmine\level\format\io\BaseLevelProvider;
 use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
+use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class SkyBlock extends PluginBase{
+
+	public const PERMISSION_OP = "enes5519.skyblock.op";
 
 	public const PREFIX = TextFormat::GREEN . 'SkyBlock ' . TextFormat::DARK_GRAY . '> ' . TextFormat::GRAY;
 
@@ -34,8 +37,11 @@ class SkyBlock extends PluginBase{
 			throw new \CompileError("world.zip dosyası bulunamadı!");
 		}
 
+		$this->saveDefaultConfig();
+
 		$this->setProvider(new YAMLProvider($this));
 
+		$this->getServer()->getPluginManager()->registerEvents(new EventListener($this, $this->getConfig()->get("worlds-of-server")), $this);
 		$this->getServer()->getCommandMap()->register("SkyBlock", new IslandCommand());
 	}
 

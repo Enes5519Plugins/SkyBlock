@@ -15,16 +15,16 @@ class Island{
 	private $coOps;
 	/** @var Position */
 	private $spawnPoint;
-	/** @var array TODO Permission class */
-	private $permissions;
+	/** @var IslandPermission */
+	private $permission;
 	/** @var bool */
 	private $visitEnabled;
 
 	public function __construct(string $owner, array $coOps, Position $spawnPoint, array $permissions, bool $visitEnabled){
 		$this->owner = $owner;
-		$this->coOps = $coOps;
+		$this->coOps = array_flip($coOps); // for performance
 		$this->spawnPoint = $spawnPoint;
-		$this->permissions = $permissions;
+		$this->permission = new IslandPermission($this, $permissions);
 		$this->visitEnabled = $visitEnabled;
 	}
 
@@ -33,6 +33,24 @@ class Island{
 	 */
 	public function getOwner() : string{
 		return $this->owner;
+	}
+
+	/**
+	 * @return IslandPermission
+	 */
+	public function getPermission() : IslandPermission{
+		return $this->permission;
+	}
+
+	public function isCoOp(string $name) : bool{
+		return isset($this->coOps[$name]);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCoOps() : array{
+		return $this->coOps;
 	}
 
 	/**
@@ -72,9 +90,9 @@ class Island{
 
 	public function toArray() : array{
 		return [
-			"coOps" => $this->coOps,
+			"coOps" => array_flip($this->coOps),
 			"spawnPoint" => Utils::encodePosition($this->spawnPoint),
-			"permissions" => $this->permissions,
+			"permissions" => $this->permission->toArray(),
 			"visitEnabled" => $this->visitEnabled
 		];
 	}
