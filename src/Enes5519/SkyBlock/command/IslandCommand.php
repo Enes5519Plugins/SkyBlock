@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Enes5519\SkyBlock\command;
 
+use Enes5519\SkyBlock\form\IslandMenu;
 use Enes5519\SkyBlock\provider\DataProvider;
 use Enes5519\SkyBlock\SkyBlock;
 use pocketmine\command\Command;
@@ -21,7 +22,7 @@ class IslandCommand extends Command{
 		if($sender instanceof Player){
 			$provider = SkyBlock::getAPI()->getProvider();
 			if(($createIsland = $provider->createIsland($sender)) === DataProvider::ERROR_ALREADY_EXISTS){
-				// TODO : UI
+				$sender->sendForm(new IslandMenu($sender));
 			}elseif($createIsland === DataProvider::ERROR_NONE){
 				$sender->teleport($provider->getIsland($sender->getLowerCaseName())->getSpawnPoint());
 				$sender->sendMessage(SkyBlock::PREFIX . TextFormat::GREEN . 'Adanız oluşturuldu!');

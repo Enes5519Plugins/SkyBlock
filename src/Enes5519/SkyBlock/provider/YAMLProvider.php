@@ -7,7 +7,6 @@ namespace Enes5519\SkyBlock\provider;
 use Enes5519\SkyBlock\Island;
 use Enes5519\SkyBlock\SkyBlock;
 use Enes5519\SkyBlock\utils\Utils;
-use pocketmine\level\Location;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\Config;
@@ -33,7 +32,7 @@ class YAMLProvider extends DataProvider{
 	public function createIsland(Player $player) : int{
 		if($this->getConfig($name = $player->getLowerCaseName()) === null){
 			$level = SkyBlock::extractIslandMap($name);
-			$this->islands[$name] = new Island($name, [], Location::fromObject($level->getProvider()->getSpawn(), $level), [], true);
+			$this->islands[$name] = new Island($name, [], $level->getSpawnLocation(), [], true);
 			$this->configs[$name] = new Config($this->path . $name . ".yaml", Config::YAML, [
 				"coOps" => [],
 				"island" => $this->islands[$name]->toArray(),
@@ -46,7 +45,7 @@ class YAMLProvider extends DataProvider{
 			$timestamp = $this->configs[$name]->get('bannedTimestamp', 0);
 			if(time() > $timestamp){
 				$level = SkyBlock::extractIslandMap($name);
-				$this->islands[$name] = new Island($name, [], Location::fromObject($level->getProvider()->getSpawn(), $level), [], true);
+				$this->islands[$name] = new Island($name, [], $level->getSpawnLocation(), [], true);
 				$this->configs[$name]->set("island", $this->islands[$name]->toArray());
 				$this->configs[$name]->set("bannedTimestamp", 0);
 				$this->configs[$name]->save();
@@ -55,6 +54,14 @@ class YAMLProvider extends DataProvider{
 
 			return self::ERROR_HAVE_BAN;
 		}
+	}
+
+	public function setIslandOption(Island $island, string $key, $data){
+		$cfg = $this->getConfig($island->getOwner());
+		$island = $cfg->get("island");
+		$island[$key] = $data;
+		$cfg->set("island", $island);
+		$cfg->save();
 	}
 
 	public function deleteIsland(Player $player) : int{

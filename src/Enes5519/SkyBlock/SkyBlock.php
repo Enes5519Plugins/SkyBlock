@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Enes5519\SkyBlock;
 
+use Enes5519\SkyBlock\command\IslandCommand;
 use Enes5519\SkyBlock\provider\DataProvider;
 use Enes5519\SkyBlock\provider\YAMLProvider;
+use pocketmine\level\format\io\BaseLevelProvider;
 use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
@@ -33,6 +35,8 @@ class SkyBlock extends PluginBase{
 		}
 
 		$this->setProvider(new YAMLProvider($this));
+
+		$this->getServer()->getCommandMap()->register("SkyBlock", new IslandCommand());
 	}
 
 	public static function extractIslandMap(string $name) : Level{
@@ -42,7 +46,14 @@ class SkyBlock extends PluginBase{
 		$zip->extractTo(Server::getInstance()->getDataPath() . "worlds/$name");
 		$zip->close();
 
-		return self::getLevel($name);
+		return self::fixLevelName(self::getLevel($name), $name);
+	}
+
+	public static function fixLevelName(Level $level, string $name) : Level{
+		/** @var BaseLevelProvider $provider */
+		$provider = $level->getProvider();
+		$provider->getLevelData()->setString("LevelName", $name);
+		return $level;
 	}
 
 	public static function getLevel(string $name) : Level{
