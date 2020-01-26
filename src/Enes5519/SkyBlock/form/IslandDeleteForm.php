@@ -2,6 +2,8 @@
 
 namespace Enes5519\SkyBlock\form;
 
+use Enes5519\SkyBlock\provider\DataProvider;
+use Enes5519\SkyBlock\SkyBlock;
 use pocketmine\form\Form;
 use pocketmine\form\FormValidationException;
 use pocketmine\Player;
@@ -22,7 +24,12 @@ class IslandDeleteForm implements Form{
 
 	public function onSubmit(Player $player, bool $data) : void{
 		if(!$data){
-			// TODO : Delete Island
+			$error = SkyBlock::getAPI()->getProvider()->deleteIsland($player);
+			if($error === DataProvider::ERROR_NONE){
+				$player->sendMessage(SkyBlock::PREFIX . "Adanız silindi!");
+			}else{
+				$player->sendMessage(SkyBlock::PREFIX . "Adanız zaten bulunmamakta.");
+			}
 		}
 	}
 

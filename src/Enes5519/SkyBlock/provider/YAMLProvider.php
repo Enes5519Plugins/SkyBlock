@@ -43,7 +43,7 @@ class YAMLProvider extends DataProvider{
 			return self::ERROR_ALREADY_EXISTS;
 		}else{
 			$timestamp = $this->configs[$name]->get('bannedTimestamp', 0);
-			if(time() > $timestamp){
+			if(time() >= $timestamp){
 				$level = SkyBlock::extractIslandMap($name);
 				$this->islands[$name] = new Island($name, [], $level->getSpawnLocation(), [], true);
 				$this->configs[$name]->set("island", $this->islands[$name]->toArray());
@@ -77,6 +77,10 @@ class YAMLProvider extends DataProvider{
 
 			return self::ERROR_NONE;
 		}
+	}
+
+	public function getBanTimestamp(Player $player) : int{
+		return $this->getConfig($player->getLowerCaseName()) !== null ? ((int) $this->configs[$player->getLowerCaseName()]->get("bannedTimestamp", 0)) : 0;
 	}
 
 	public function getIsland(string $name) : Island{

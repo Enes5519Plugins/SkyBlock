@@ -27,8 +27,11 @@ class IslandCommand extends Command{
 				$sender->teleport($provider->getIsland($sender->getLowerCaseName())->getSpawnPoint());
 				$sender->sendMessage(SkyBlock::PREFIX . TextFormat::GREEN . 'Adanız oluşturuldu!');
 			}else{
-				// TODO : Süre yazsın
-				$sender->sendMessage(SkyBlock::PREFIX . TextFormat::RED . 'Yeni ada oluşturmadan önce beklemelisin!');
+				$bannedTimestamp = new \DateTime('@' . $provider->getBanTimestamp($sender));
+				$now = new \DateTime();
+				$diff = $bannedTimestamp->diff($now);
+
+				$sender->sendMessage(SkyBlock::PREFIX . 'Yeni ada oluşturmadan önce ' . TextFormat::YELLOW . "{$diff->days} gün, {$diff->h} saat, {$diff->i} dakika, {$diff->s} saniye" . TextFormat::GRAY . ' beklemelisin.');
 			}
 		}else{
 			$sender->sendMessage("Bu komut yalnızca oyunda kullanılabilir.");

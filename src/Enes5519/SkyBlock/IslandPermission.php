@@ -10,7 +10,7 @@ class IslandPermission{
 	public const BLOCK_PLACE = 0;
 	public const BLOCK_BREAK = 1;
 	public const INTERACT = 2;
-	public const PICK_ITEM = 3;
+	public const PICKUP_ITEM = 3;
 
 	/** @var bool[] */
 	private $permissions;
@@ -44,7 +44,7 @@ class IslandPermission{
 			self::BLOCK_PLACE => true,
 			self::BLOCK_BREAK => true,
 			self::INTERACT => true,
-			self::PICK_ITEM => true
+			self::PICKUP_ITEM => true
 		];
 	}
 }

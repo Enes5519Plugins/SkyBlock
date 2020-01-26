@@ -60,6 +60,11 @@ class IslandVisitForm implements Form{
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(){
-		// TODO: Implement jsonSerialize() method.
+		return [
+			"type" => "form",
+			"title" => "Ziyaret Et",
+			"content" => "",
+			"buttons" => $this->options
+		];
 	}
 }

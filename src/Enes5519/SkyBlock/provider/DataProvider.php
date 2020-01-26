@@ -27,5 +27,7 @@ abstract class DataProvider{
 
 	abstract public function deleteIsland(Player $player) : int;
 
+	abstract public function getBanTimestamp(Player $player) : int;
+
 	abstract public function getIsland(string $name) : Island;
 }
