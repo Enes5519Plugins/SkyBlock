@@ -43,7 +43,7 @@ class IslandMenu implements Form{
 				}
 				break;
 			case 2:
-				// TODO : ORTAK UI
+				$player->sendForm(new IslandCoOpMenu());
 				break;
 			case 3:
 				$island = SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName());

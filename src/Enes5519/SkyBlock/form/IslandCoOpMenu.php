@@ -16,7 +16,8 @@ class IslandCoOpMenu implements Form{
 		$this->options = [
 			new MenuOption( "Ortak Ekle"),
 			new MenuOption( "Ortak Kaldır"),
-			new MenuOption( "Ada İzinleri")
+			new MenuOption( "Ada İzinleri"),
+			new MenuOption("Ortaklıklar")
 		];
 	}
 
@@ -44,6 +45,9 @@ class IslandCoOpMenu implements Form{
 				break;
 			case 2:
 				$player->sendForm(new IslandCoOpPermissionsForm($player));
+				break;
+			case 3:
+				$player->sendForm(new IslandCoOpOthersForm($player));
 				break;
 		}
 	}
