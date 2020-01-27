@@ -28,7 +28,7 @@ class SkyBlockPlayer{
 		$this->coOps = $data[DataProvider::PLAYER_CO_OPS] ?? [];
 
 		if(!empty($data[DataProvider::PLAYER_ISLAND])){
-			$this->island = new Island($this, $data[DataProvider::PLAYER_ISLAND]);
+			$this->island = Island::fromArray($this, $data[DataProvider::PLAYER_ISLAND]);
 		}
 
 		$this->bannedTimestamp = $data[DataProvider::PLAYER_BANNED_TIMESTAMP] ?? 0;

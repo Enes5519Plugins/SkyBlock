@@ -9,7 +9,6 @@ use Enes5519\SkyBlock\SkyBlock;
 use Enes5519\SkyBlock\SkyBlockPlayer;
 use Enes5519\SkyBlock\utils\Utils;
 use pocketmine\Player;
-use pocketmine\Server;
 use pocketmine\utils\Config;
 
 class YAMLProvider extends DataProvider{
@@ -24,8 +23,6 @@ class YAMLProvider extends DataProvider{
 
 	/** @var Config[] */
 	private $configs;
-	/** @var Island[] */
-	private $islands;
 	/** @var SkyBlockPlayer[] */
 	private $skyBlockPlayers;
 
@@ -61,7 +58,7 @@ class YAMLProvider extends DataProvider{
 			}
 
 			$level = SkyBlock::extractIslandMap($name);
-			$skyBlockPlayer->setIsland(new Island($name, [], $level->getSpawnLocation(), [], true));
+			$skyBlockPlayer->setIsland(new Island($skyBlockPlayer, [], $level->getSpawnLocation(), [], true));
 			return self::ERROR_NONE;
 		}else{
 			return self::ERROR_ALREADY_EXISTS;
@@ -84,14 +81,5 @@ class YAMLProvider extends DataProvider{
 	public function saveSkyBlockPlayer(SkyBlockPlayer $player) : void{
 		$this->configs[$player->getName()]->setAll($player->toArray());
 		$this->configs[$player->getName()]->save();
-	}
-
-	private function getConfig(string $name) : Config{
-		if(file_exists($this->path . $name . '.yml')){
-			$this->registerPlayer($name);
-			return $this->configs[$name];
-		}
-
-		return null;
 	}
 }

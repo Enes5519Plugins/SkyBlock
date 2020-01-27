@@ -11,7 +11,6 @@ use pocketmine\level\format\io\BaseLevelProvider;
 use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
-use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class SkyBlock extends PluginBase{

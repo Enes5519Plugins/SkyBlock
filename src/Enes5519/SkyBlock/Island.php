@@ -10,6 +10,16 @@ use pocketmine\level\Position;
 
 class Island{
 
+	public static function fromArray(SkyBlockPlayer $player, array $data) : Island{
+		return new Island(
+			$player,
+			$data[DataProvider::ISLAND_CO_OPS],
+			Utils::decodePosition($data[DataProvider::ISLAND_SPAWN_POINT]),
+			$data[DataProvider::ISLAND_PERMISSIONS],
+			$data[DataProvider::ISLAND_VISIT_ENABLED]
+		);
+	}
+
 	/** @var SkyBlockPlayer */
 	private $owner;
 	/** @var array */
@@ -21,19 +31,12 @@ class Island{
 	/** @var bool */
 	private $visitEnabled;
 
-	public function __construct(SkyBlockPlayer $owner, array $data){
+	public function __construct(SkyBlockPlayer $owner, array $coOps, Position $spawnPoint, array $permissions, bool $visitEnabled){
 		$this->owner = $owner;
-		$this->coOps = array_flip($data[DataProvider::ISLAND_CO_OPS]); // for performance
-		$this->spawnPoint = Utils::decodePosition($data[DataProvider::ISLAND_SPAWN_POINT]);
-		$this->permission = new IslandPermission($this, $data[DataProvider::ISLAND_PERMISSIONS]);
-		$this->visitEnabled = $data[DataProvider::ISLAND_VISIT_ENABLED];
-	}
-
-	/**
-	 * @return SkyBlockPlayer
-	 */
-	public function getOwner() : SkyBlockPlayer{
-		return $this->owner;
+		$this->coOps = array_flip($coOps); // for performance
+		$this->spawnPoint = $spawnPoint;
+		$this->permission = new IslandPermission($this, $permissions);
+		$this->visitEnabled = $visitEnabled;
 	}
 
 	/**
