@@ -6,12 +6,18 @@ namespace Enes5519\SkyBlock\provider;
 
 use Enes5519\SkyBlock\Island;
 use Enes5519\SkyBlock\SkyBlock;
+use Enes5519\SkyBlock\SkyBlockPlayer;
 use Enes5519\SkyBlock\utils\Utils;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 
 class YAMLProvider extends DataProvider{
+
+	public const PLAYER_DEFAULTS = [
+		self::PLAYER_CO_OPS => [],
+		self::PLAYER_BANNED_TIMESTAMP => 0
+	];
 
 	/** @var string */
 	private $path;
@@ -20,6 +26,8 @@ class YAMLProvider extends DataProvider{
 	private $configs;
 	/** @var Island[] */
 	private $islands;
+	/** @var SkyBlockPlayer[] */
+	private $skyBlockPlayers;
 
 	public function load(SkyBlock $sb) : void{
 		$this->path = $sb->getDataFolder() . "islands" . DIRECTORY_SEPARATOR;
@@ -29,71 +37,58 @@ class YAMLProvider extends DataProvider{
 		}
 	}
 
-	public function createIsland(Player $player) : int{
-		if($this->getConfig($name = $player->getLowerCaseName()) === null){
-			$level = SkyBlock::extractIslandMap($name);
-			$this->islands[$name] = new Island($name, [], $level->getSpawnLocation(), [], true);
-			$this->configs[$name] = new Config($this->path . $name . ".yaml", Config::YAML, [
-				"coOps" => [],
-				"island" => $this->islands[$name]->toArray(),
-				"bannedTimestamp" => 0
-			]);
-			return self::ERROR_NONE;
-		}elseif(Server::getInstance()->isLevelGenerated($player->getLowerCaseName())){
-			return self::ERROR_ALREADY_EXISTS;
-		}else{
-			$timestamp = $this->configs[$name]->get('bannedTimestamp', 0);
-			if(time() >= $timestamp){
-				$level = SkyBlock::extractIslandMap($name);
-				$this->islands[$name] = new Island($name, [], $level->getSpawnLocation(), [], true);
-				$this->configs[$name]->set("island", $this->islands[$name]->toArray());
-				$this->configs[$name]->set("bannedTimestamp", 0);
-				$this->configs[$name]->save();
-				return self::ERROR_NONE;
-			}
-
-			return self::ERROR_HAVE_BAN;
+	public function registerPlayer(string $name) : void{
+		if(!isset($this->configs[$name])){
+			$this->configs[$name] = new Config($this->path . $name . '.yml', Config::YAML, self::PLAYER_DEFAULTS);
 		}
 	}
 
-	public function setIslandOption(Island $island, string $key, $data){
-		$cfg = $this->getConfig($island->getOwner());
-		$island = $cfg->get("island");
-		$island[$key] = $data;
-		$cfg->set("island", $island);
-		$cfg->save();
+	public function getSkyBlockPlayer(string $name) : SkyBlockPlayer{
+		$this->registerPlayer($name);
+
+		if(!isset($this->skyBlockPlayers[$name])){
+			$this->skyBlockPlayers[$name] = new SkyBlockPlayer($name, $this->configs[$name]->getAll());
+		}
+
+		return $this->skyBlockPlayers[$name];
+	}
+
+	public function createIsland(Player $player) : int{
+		$skyBlockPlayer = $this->getSkyBlockPlayer($name = $player->getLowerCaseName());
+		if($skyBlockPlayer->getIsland() === null){
+			if($skyBlockPlayer->checkBan()){
+				return self::ERROR_HAVE_BAN;
+			}
+
+			$level = SkyBlock::extractIslandMap($name);
+			$skyBlockPlayer->setIsland(new Island($name, [], $level->getSpawnLocation(), [], true));
+			return self::ERROR_NONE;
+		}else{
+			return self::ERROR_ALREADY_EXISTS;
+		}
 	}
 
 	public function deleteIsland(Player $player) : int{
-		if($this->getConfig($player->getLowerCaseName()) === null){
+		$skyBlockPlayer = $this->getSkyBlockPlayer($name = $player->getLowerCaseName());
+		if($skyBlockPlayer->getIsland() === null){
 			return self::ERROR_NOT_FOUND;
 		}else{
-			$config = $this->configs[$player->getLowerCaseName()];
-			$config->remove("island");
-			$config->set("bannedTimestamp", strtotime("+1 week"));
-			$config->save();
-
+			$skyBlockPlayer->setIsland(null);
+			$skyBlockPlayer->setBannedTimestamp(strtotime('+1 week'));
 			Utils::deleteDir($player->getServer()->getDataPath() . "worlds" . DIRECTORY_SEPARATOR . $player->getLowerCaseName());
 
 			return self::ERROR_NONE;
 		}
 	}
 
-	public function getBanTimestamp(Player $player) : int{
-		return $this->getConfig($player->getLowerCaseName()) !== null ? ((int) $this->configs[$player->getLowerCaseName()]->get("bannedTimestamp", 0)) : 0;
+	public function saveSkyBlockPlayer(SkyBlockPlayer $player) : void{
+		$this->configs[$player->getName()]->setAll($player->toArray());
+		$this->configs[$player->getName()]->save();
 	}
 
-	public function getIsland(string $name) : Island{
-		if(!isset($this->islands[$name])){
-			$this->islands[$name] = Island::fromArray($name, $this->getConfig($name)->getAll()["island"]);
-		}
-
-		return $this->islands[$name];
-	}
-
-	public function getConfig(string $name) : ?Config{
-		if(file_exists($this->path . $name . ".yaml")){
-			$this->configs[$name] = new Config($this->path . $name . ".yaml", Config::YAML);
+	private function getConfig(string $name) : Config{
+		if(file_exists($this->path . $name . '.yml')){
+			$this->registerPlayer($name);
 			return $this->configs[$name];
 		}
 

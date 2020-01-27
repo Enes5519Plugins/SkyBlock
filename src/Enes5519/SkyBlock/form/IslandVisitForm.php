@@ -50,7 +50,16 @@ class IslandVisitForm implements Form{
 
 		$visitIsland = SkyBlock::getAPI()->getProvider()->getIsland($visit->getLowerCaseName());
 		if($visitIsland->isVisitEnabled()){
-			$visit->sendForm(new IslandVisitModalForm($player));
+			$visit->sendForm(new ModalForm('Ada Ziyaret', $player->getName() . ' adanızı ziyaret etmek istiyor?', function(Player $visit, bool $data) use($player){
+				if($data){
+					if(!$player->isClosed()){
+						$player->teleport(SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->getSpawnPoint());
+						$player->sendMessage(SkyBlock::PREFIX . "Adaya ışınlandınız!");
+					}
+				}else{
+					$player->sendMessage(SkyBlock::PREFIX . $visit->getName() . " sizi adasına istemedi!");
+				}
+			}));
 		}else{
 			$player->sendMessage(SkyBlock::PREFIX . "Oyuncunun adası ziyaretlere kapalı!");
 		}

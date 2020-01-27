@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Enes5519\SkyBlock;
 
+use Enes5519\SkyBlock\provider\DataProvider;
 use Enes5519\SkyBlock\utils\Utils;
 use pocketmine\level\Position;
 
 class Island{
 
-	/** @var string */
+	/** @var SkyBlockPlayer */
 	private $owner;
 	/** @var array */
 	private $coOps;
@@ -20,18 +21,18 @@ class Island{
 	/** @var bool */
 	private $visitEnabled;
 
-	public function __construct(string $owner, array $coOps, Position $spawnPoint, array $permissions, bool $visitEnabled){
+	public function __construct(SkyBlockPlayer $owner, array $data){
 		$this->owner = $owner;
-		$this->coOps = array_flip($coOps); // for performance
-		$this->spawnPoint = $spawnPoint;
-		$this->permission = new IslandPermission($this, $permissions);
-		$this->visitEnabled = $visitEnabled;
+		$this->coOps = array_flip($data[DataProvider::ISLAND_CO_OPS]); // for performance
+		$this->spawnPoint = Utils::decodePosition($data[DataProvider::ISLAND_SPAWN_POINT]);
+		$this->permission = new IslandPermission($this, $data[DataProvider::ISLAND_PERMISSIONS]);
+		$this->visitEnabled = $data[DataProvider::ISLAND_VISIT_ENABLED];
 	}
 
 	/**
-	 * @return string
+	 * @return SkyBlockPlayer
 	 */
-	public function getOwner() : string{
+	public function getOwner() : SkyBlockPlayer{
 		return $this->owner;
 	}
 
@@ -53,6 +54,22 @@ class Island{
 		return $this->coOps;
 	}
 
+	public function addCoOp(string $coOpName) : void{
+		if(isset($this->coOps[$coOpName])){
+			return;
+		}
+
+		$this->coOps[$coOpName] = true;
+		SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($coOpName)->addCoOp($this->owner->getName());
+		$this->save();
+	}
+
+	public function kickCoOp(string $coOpName) : void{
+		unset($this->coOps[$coOpName]);
+		SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($coOpName)->removeCoOp($this->owner->getName());
+		$this->save();
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -65,7 +82,7 @@ class Island{
 	 */
 	public function setVisitEnabled(bool $visitEnabled) : void{
 		$this->visitEnabled = $visitEnabled;
-		SkyBlock::getAPI()->getProvider()->setIslandOption($this, "visitEnabled", $visitEnabled);
+		$this->save();
 	}
 
 	/**
@@ -81,19 +98,19 @@ class Island{
 	public function setSpawnPoint(Position $spawnPoint) : void{
 		$this->spawnPoint->getLevel()->setSpawnLocation($spawnPoint);
 		$this->spawnPoint = $spawnPoint;
-		SkyBlock::getAPI()->getProvider()->setIslandOption($this, "spawnPoint", Utils::encodePosition($spawnPoint));
+		$this->save();
 	}
 
-	public static function fromArray(string $name, array $islandData) : Island{
-		return new Island($name, $islandData["coOps"], Utils::decodePosition($islandData["spawnPoint"]), $islandData["permissions"], $islandData["visitEnabled"]);
+	public function save() : void{
+		$this->owner->save();
 	}
 
 	public function toArray() : array{
 		return [
-			"coOps" => array_flip($this->coOps),
-			"spawnPoint" => Utils::encodePosition($this->spawnPoint),
-			"permissions" => $this->permission->toArray(),
-			"visitEnabled" => $this->visitEnabled
+			DataProvider::ISLAND_CO_OPS => array_keys($this->coOps),
+			DataProvider::ISLAND_SPAWN_POINT => Utils::encodePosition($this->spawnPoint),
+			DataProvider::ISLAND_PERMISSIONS => $this->permission->toArray(),
+			DataProvider::ISLAND_VISIT_ENABLED => $this->visitEnabled
 		];
 	}
 }

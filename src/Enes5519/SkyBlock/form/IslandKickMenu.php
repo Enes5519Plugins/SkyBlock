@@ -19,7 +19,7 @@ class IslandKickMenu implements Form{
 				return null;
 			}
 			return (new MenuOption(TextFormat::RED . $islandPlayer->getName()))->setExtra($islandPlayer);
-		}, SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->getSpawnPoint()->getLevel()->getPlayers());
+		}, SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($player->getLowerCaseName())->getIsland()->getSpawnPoint()->getLevel()->getPlayers());
 	}
 
 	/**
@@ -39,7 +39,7 @@ class IslandKickMenu implements Form{
 	private function onSubmit(Player $player, int $data){
 		/** @var Player $kickPlayer */
 		$kickPlayer = $this->options[$data]->getExtra();
-		if($kickPlayer->getLevel()->getId() === SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->getSpawnPoint()->getLevel()->getId()){
+		if($kickPlayer->getLevel()->getId() === SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($player->getLowerCaseName())->getIsland()->getSpawnPoint()->getLevel()->getId()){
 			$kickPlayer->teleport($kickPlayer->getServer()->getDefaultLevel()->getSpawnLocation());
 			$player->sendMessage(SkyBlock::PREFIX . "Oyuncu adadan tekmelendi!");
 		}

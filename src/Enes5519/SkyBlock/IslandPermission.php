@@ -28,7 +28,7 @@ class IslandPermission{
 
 	public function changePermission(int $permission) : bool{
 		$this->permissions[$permission] = !$this->permissions[$permission];
-		SkyBlock::getAPI()->getProvider()->setIslandOption($this->island, "permissions", $this->permissions);
+		$this->island->save();
 		return $this->permissions[$permission];
 	}
 

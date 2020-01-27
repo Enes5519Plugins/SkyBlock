@@ -30,8 +30,7 @@ class IslandMenu implements Form{
 	private function onSubmit(Player $player, int $data) : void{
 		switch($data){
 			case 0:
-				$island = SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName());
-				$player->teleport($island->getSpawnPoint());
+				$player->teleport(SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->getSpawnPoint());
 				$player->sendMessage(SkyBlock::PREFIX . "Adanıza ışınlandınız!");
 				break;
 			case 1:
@@ -58,7 +57,7 @@ class IslandMenu implements Form{
 				$player->sendForm(new IslandKickMenu($player));
 				break;
 			case 6:
-				$player->sendForm(new IslandDeleteForm($player));
+				$player->sendForm(new IslandDeleteForm());
 				break;
 		}
 	}
