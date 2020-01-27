@@ -71,6 +71,8 @@ class SkyBlockPlayer{
 	 */
 	public function setIsland(?Island $island) : void{
 		$this->island = $island;
+
+		$this->save();
 	}
 
 	/**

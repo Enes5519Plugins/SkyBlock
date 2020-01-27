@@ -18,7 +18,7 @@ class IslandCoOpAddForm implements Form{
 		$island = SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($player->getLowerCaseName())->getIsland();
 
 		foreach($player->getServer()->getOnlinePlayers() as $coOp){
-			if(!$island->isCoOp($coOp->getLowerCaseName())){
+			if(!$island->isCoOp($coOp->getLowerCaseName()) and $coOp->getId() !== $player->getId()){
 				$this->options[] = (new MenuOption($coOp->getName()))->setExtra($coOp);
 			}
 		}
@@ -33,8 +33,6 @@ class IslandCoOpAddForm implements Form{
 				throw new FormValidationException("Option $data does not exist");
 			}
 			$this->onSubmit($player, $data);
-		}else{
-			throw new FormValidationException("Expected int or null, got " . gettype($data));
 		}
 	}
 

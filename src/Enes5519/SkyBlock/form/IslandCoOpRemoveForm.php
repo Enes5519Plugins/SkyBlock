@@ -31,8 +31,6 @@ class IslandCoOpRemoveForm implements Form{
 				throw new FormValidationException("Option $data does not exist");
 			}
 			$this->onSubmit($player, $data);
-		}else{
-			throw new FormValidationException("Expected int or null, got " . gettype($data));
 		}
 	}
 
@@ -43,6 +41,7 @@ class IslandCoOpRemoveForm implements Form{
 			if($data){
 				$sbPlayer = SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($player->getLowerCaseName());
 				$sbPlayer->getIsland()->kickCoOp($coOpName);
+				$player->sendMessage(SkyBlock::PREFIX . $coOpName . ' ortaklıktan çıkartıldı!');
 			}
 		}));
 	}

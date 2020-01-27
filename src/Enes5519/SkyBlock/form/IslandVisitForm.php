@@ -16,13 +16,11 @@ class IslandVisitForm implements Form{
 	private $options = [];
 
 	public function __construct(Player $player){
-		$this->options = array_map(function(Player $online) use($player){
-			if($online->getId() === $player->getId()){
-				return null;
+		foreach($player->getServer()->getOnlinePlayers() as $online){
+			if($online->getId() !== $player->getId()){
+				$this->options[] = (new MenuOption(TextFormat::YELLOW . $online->getName()))->setExtra($online);
 			}
-
-			return (new MenuOption(TextFormat::YELLOW . $online->getName()))->setExtra($online);
-		}, $player->getServer()->getOnlinePlayers());
+		}
 	}
 
 	/**
@@ -34,8 +32,6 @@ class IslandVisitForm implements Form{
 				throw new FormValidationException("Option $data does not exist");
 			}
 			$this->onSubmit($player, $data);
-		}else{
-			throw new FormValidationException("Expected int or null, got " . gettype($data));
 		}
 	}
 
@@ -53,7 +49,7 @@ class IslandVisitForm implements Form{
 			$visit->sendForm(new ModalForm('Ada Ziyaret', $player->getName() . ' adanızı ziyaret etmek istiyor?', function(Player $visit, bool $data) use($player){
 				if($data){
 					if(!$player->isClosed()){
-						$player->teleport(SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->getSpawnPoint());
+						$player->teleport(SkyBlock::getAPI()->getProvider()->getIsland($visit->getLowerCaseName())->getSpawnPoint());
 						$player->sendMessage(SkyBlock::PREFIX . "Adaya ışınlandınız!");
 					}
 				}else{

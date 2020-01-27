@@ -14,12 +14,11 @@ class IslandKickMenu implements Form{
 	private $options = [];
 
 	public function __construct(Player $player){
-		$this->options = array_map(function(Player $islandPlayer) use ($player){
-			if($islandPlayer->getId() === $player->getId()){
-				return null;
+		foreach(SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->getSpawnPoint()->getLevel()->getPlayers() as $sbPlayer){
+			if($sbPlayer->getId() !== $player->getId()){
+				$this->options[] = (new MenuOption(TextFormat::RED . $sbPlayer->getName()))->setExtra($sbPlayer);
 			}
-			return (new MenuOption(TextFormat::RED . $islandPlayer->getName()))->setExtra($islandPlayer);
-		}, SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($player->getLowerCaseName())->getIsland()->getSpawnPoint()->getLevel()->getPlayers());
+		}
 	}
 
 	/**
@@ -31,8 +30,6 @@ class IslandKickMenu implements Form{
 				throw new FormValidationException("Option $data does not exist");
 			}
 			$this->onSubmit($player, $data);
-		}else{
-			throw new FormValidationException("Expected int or null, got " . gettype($data));
 		}
 	}
 
@@ -41,6 +38,7 @@ class IslandKickMenu implements Form{
 		$kickPlayer = $this->options[$data]->getExtra();
 		if($kickPlayer->getLevel()->getId() === SkyBlock::getAPI()->getProvider()->getSkyBlockPlayer($player->getLowerCaseName())->getIsland()->getSpawnPoint()->getLevel()->getId()){
 			$kickPlayer->teleport($kickPlayer->getServer()->getDefaultLevel()->getSpawnLocation());
+			$kickPlayer->sendMessage(SkyBlock::PREFIX . $player->getName() . ' sizi adanızdan tekmeledi!');
 			$player->sendMessage(SkyBlock::PREFIX . "Oyuncu adadan tekmelendi!");
 		}
 	}

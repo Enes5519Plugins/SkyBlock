@@ -82,6 +82,7 @@ class EventListener implements Listener{
 			$levelName = $player->getLevel()->getFolderName();
 			if(!isset($this->worldOfServer[$levelName]) and $levelName !== $player->getLowerCaseName()){
 				$island = $this->api->getProvider()->getIsland($levelName);
+
 				return !$island->getPermission()->hasPermission($perm) or !$island->isCoOp($player->getLowerCaseName());
 			}
 		}
