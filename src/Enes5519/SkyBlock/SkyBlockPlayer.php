@@ -71,8 +71,6 @@ class SkyBlockPlayer{
 	 */
 	public function setIsland(?Island $island) : void{
 		$this->island = $island;
-
-		$this->save();
 	}
 
 	/**
@@ -96,6 +94,7 @@ class SkyBlockPlayer{
 
 		if(time() >= $this->bannedTimestamp){
 			$this->setBannedTimestamp(0);
+			$this->save();
 			return false;
 		}
 
