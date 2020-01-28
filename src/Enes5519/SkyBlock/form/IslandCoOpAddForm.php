@@ -45,7 +45,7 @@ class IslandCoOpAddForm implements Form{
 		}else{
 			$modal = new ModalForm('Ortaklık İsteği', $player->getName() . ' isimli oyuncu sizi adasına ortak eklemek istiyor.', function(Player $coOp, bool $data) use($player){
 				if($data){
-					SkyBlock::getAPI()->getProvider()->getIsland($player->getName())->addCoOp($coOp->getName());
+					SkyBlock::getAPI()->getProvider()->getIsland($player->getLowerCaseName())->addCoOp($coOp->getLowerCaseName());
 					$player->sendMessage(SkyBlock::PREFIX . $coOp->getName() . ' artık ortağınız!');
 				}else{
 					$player->sendMessage(SkyBlock::PREFIX . $coOp->getName() . ' ortaklık teklifini reddetti!');
