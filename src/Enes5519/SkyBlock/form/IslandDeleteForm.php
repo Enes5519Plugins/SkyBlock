@@ -24,9 +24,15 @@ class IslandDeleteForm implements Form{
 
 	public function onSubmit(Player $player, bool $data) : void{
 		if(!$data){
-			$error = SkyBlock::getAPI()->getProvider()->deleteIsland($player);
+			$provider = SkyBlock::getAPI()->getProvider();
+			$error = $provider->deleteIsland($player);
 			if($error === DataProvider::ERROR_NONE){
 				$player->sendMessage(SkyBlock::PREFIX . "Adanız silindi!");
+			}elseif($error === DataProvider::ERROR_HAVE_BAN){
+				$bannedTimestamp = new \DateTime('@' . $provider->getSkyBlockPlayer($player->getLowerCaseName())->getBannedTimestamp());
+				$diff = $bannedTimestamp->diff(new \DateTime());
+
+				$player->sendMessage(SkyBlock::PREFIX . 'Adanızı silmeden önce ' . TextFormat::YELLOW . "{$diff->days} gün, {$diff->h} saat, {$diff->i} dakika, {$diff->s} saniye" . TextFormat::GRAY . ' beklemelisin.');
 			}else{
 				$player->sendMessage(SkyBlock::PREFIX . "Adanız zaten bulunmamakta.");
 			}

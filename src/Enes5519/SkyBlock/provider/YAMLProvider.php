@@ -53,12 +53,9 @@ class YAMLProvider extends DataProvider{
 	public function createIsland(Player $player) : int{
 		$skyBlockPlayer = $this->getSkyBlockPlayer($name = $player->getLowerCaseName());
 		if($skyBlockPlayer->getIsland() === null){
-			if($skyBlockPlayer->checkBan()){
-				return self::ERROR_HAVE_BAN;
-			}
-
 			$level = SkyBlock::extractIslandMap($name);
 			$skyBlockPlayer->setIsland(new Island($skyBlockPlayer, [], $level->getSpawnLocation(), [], true));
+			$skyBlockPlayer->setBannedTimestamp(strtotime('+1 week'));
 			$skyBlockPlayer->save();
 			return self::ERROR_NONE;
 		}else{
@@ -71,10 +68,13 @@ class YAMLProvider extends DataProvider{
 		if($skyBlockPlayer->getIsland() === null){
 			return self::ERROR_NOT_FOUND;
 		}else{
+			if($skyBlockPlayer->checkBan()){
+				return self::ERROR_HAVE_BAN;
+			}
+
 			$player->getServer()->unloadLevel($skyBlockPlayer->getIsland()->getSpawnPoint()->getLevel());
 
 			$skyBlockPlayer->setIsland(null);
-			$skyBlockPlayer->setBannedTimestamp(strtotime('+1 week'));
 			$skyBlockPlayer->save();
 
 			Utils::deleteDir($player->getServer()->getDataPath() . "worlds" . DIRECTORY_SEPARATOR . $player->getLowerCaseName());
