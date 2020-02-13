@@ -9,6 +9,7 @@ use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerBucketFillEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\Player;
 
@@ -37,6 +38,14 @@ class EventListener implements Listener{
 	public function __construct(SkyBlock $api, array $worldsOfServer){
 		$this->api = $api;
 		$this->worldOfServer = array_flip($worldsOfServer);
+	}
+
+	/**
+	 * @param PlayerBucketFillEvent $event
+	 * @ignoreCancelled true
+	 */
+	public function onFillBucket(PlayerBucketFillEvent $event) : void{
+		$event->setCancelled($this->onIslandEvents($event->getPlayer(), IslandPermission::INTERACT));
 	}
 
 	/**
