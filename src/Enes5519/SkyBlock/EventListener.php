@@ -9,6 +9,7 @@ use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerBucketEmptyEvent;
 use pocketmine\event\player\PlayerBucketFillEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\Player;
@@ -45,6 +46,14 @@ class EventListener implements Listener{
 	 * @ignoreCancelled true
 	 */
 	public function onFillBucket(PlayerBucketFillEvent $event) : void{
+		$event->setCancelled($this->onIslandEvents($event->getPlayer(), IslandPermission::INTERACT));
+	}
+
+	/**
+	 * @param PlayerBucketEmptyEvent $event
+	 * @ignoreCancelled true
+	 */
+	public function onEmptyBucket(PlayerBucketEmptyEvent $event) : void{
 		$event->setCancelled($this->onIslandEvents($event->getPlayer(), IslandPermission::INTERACT));
 	}
 
